@@ -1,6 +1,7 @@
 // Define class Music
 class Music {
-    #mixBtn = HTMLElement;
+    #openListBtn = HTMLElement;
+    #closeListBtn = HTMLElement;
     #nextBtn = HTMLElement;
     #playBtn = HTMLElement;
     #prevBtn = HTMLElement;
@@ -10,6 +11,7 @@ class Music {
     #musicDuration = HTMLElement;
     #musicProgress = HTMLElement;
     #musicAudio = HTMLElement;
+    #musicPlaylist = HTMLElement;
 
     #musics = Array;
     #isPlaying = Boolean;
@@ -17,7 +19,8 @@ class Music {
     #currentSongIndex = Number;
 
     constructor(musics) {
-        this.#mixBtn = document.querySelector("#musicMixBtn");
+        this.#openListBtn = document.querySelector("#openListBtn");
+        this.#closeListBtn = document.querySelector("#closeListBtn");
         this.#prevBtn = document.querySelector("#musicPrevBtn");
         this.#playBtn = document.querySelector("#musicPlayBtn");
         this.#nextBtn = document.querySelector("#musicNextBtn");
@@ -27,11 +30,14 @@ class Music {
         this.#musicDuration = document.querySelector("#musicDuration");
         this.#musicProgress = document.querySelector("#musicProgress");
         this.#musicAudio = document.querySelector("#musicAudio");
+        this.#musicPlaylist = document.querySelector("#musicPlaylist");
 
         this.#musics = musics || [];
         this.#isPlaying = false;
         this.#isRepeatSong = false;
         this.#currentSongIndex = 0;
+
+        this.#createPlaylist();
     }
 
     #handleEvent() {
@@ -39,10 +45,13 @@ class Music {
         const nextHandle = this.#next.bind(this);
         const prevHandle = this.#prev.bind(this);
         const repeatHandle = this.#repeat.bind(this);
-        const barHandle = this.#update.bind(this);
+        const barHandle = this.#barUpdate.bind(this);
         const timeUpdateHandle = this.#progress.bind(this);
         const loadedDataHandle = this.#loadData.bind(this);
         const endedHandle = this.#ended.bind(this);
+        const showPlaylistHandle = this.#showPlaylist.bind(this);
+        const closePlaylistHandle = this.#closePlaylist.bind(this);
+        const updateHandle = this.#update.bind(this);
 
         // Play / pause song
         this.#playBtn.onclick = playHandle;
@@ -76,6 +85,55 @@ class Music {
 
         // Audio on end
         this.#musicAudio.onended = endedHandle;
+
+        // Show playlist
+        this.#openListBtn.onclick = function () {
+            // show playlist song
+            showPlaylistHandle();
+        };
+
+        // Close playlist
+        this.#closeListBtn.onclick = function () {
+            // close playlist song
+            closePlaylistHandle();
+        };
+
+        // Event when click song in playlist
+        let musicBoxs = this.#musicPlaylist.querySelectorAll(".music--box");
+
+        musicBoxs.forEach((musicBox, index) => {
+            musicBox.onclick = function () {
+                // close playlist song
+                closePlaylistHandle();
+                updateHandle(index);
+            };
+        });
+    }
+
+    #createPlaylist() {
+        let musicList = document.createElement("div");
+        musicList.classList.add("music--list");
+
+        this.#musics.map(({ name, artist, imgSrc }, index) => {
+            musicList.innerHTML += `
+                <div class="music--box" data-playing="${
+                    index === this.#currentSongIndex ? "true" : "false"
+                }">
+                    <div class="music--box__img">
+                        <img
+                            src="${imgSrc}"
+                            alt="${name} by ${artist}"
+                        />
+                    </div>
+                    <div class="music--box__content">
+                        <h6 class="music--box__name">${name}</h6>
+                        <p class="music--box__artist">${artist}</p>
+                    </div>
+                </div>
+            `;
+        });
+
+        this.#musicPlaylist.appendChild(musicList);
     }
 
     #show() {
@@ -92,6 +150,14 @@ class Music {
         musicName.innerText = name;
         musicArtist.innerText = artist;
         this.#musicAudio.setAttribute("src", audioSrc);
+    }
+
+    #showPlaylist() {
+        this.#musicPlaylist.setAttribute("data-show", "true");
+    }
+
+    #closePlaylist() {
+        this.#musicPlaylist.setAttribute("data-show", "false");
     }
 
     #spinCd() {
@@ -193,13 +259,39 @@ class Music {
         }
     }
 
-    #update(e) {
+    #barUpdate(e) {
         let musicBarWidthVal = this.#musicBar.clientWidth;
         let clickedOffSetX = e.offsetX;
         let songDuration = this.#musicAudio.duration;
 
         this.#musicAudio.currentTime =
             (clickedOffSetX / musicBarWidthVal) * songDuration;
+
+        // Play song
+        this.#isPlaying = true;
+        this.#musicAudio.play();
+
+        // spin image
+        this.#spinCd();
+    }
+
+    #update(songCurrentIndex) {
+        if (this.#currentSongIndex === songCurrentIndex) {
+            return;
+        }
+
+        this.#currentSongIndex = songCurrentIndex;
+
+        this.#musicPlaylist
+            .querySelectorAll(".music--box")
+            .forEach((item, index) => {
+                songCurrentIndex === index
+                    ? item.setAttribute("data-playing", "true")
+                    : item.setAttribute("data-playing", "false");
+            });
+
+        // Show song
+        this.#show();
 
         // Play song
         this.#isPlaying = true;

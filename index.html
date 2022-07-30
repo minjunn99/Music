@@ -45,12 +45,10 @@
                             </div>
                         </div>
                         <div class="music--btns">
-                            <button
-                                class="music--btn"
-                                data-shuffle="false"
-                                id="musicMixBtn"
-                            >
-                                <span class="material-icons"> shuffle </span>
+                            <button class="music--btn" id="openListBtn">
+                                <span class="material-icons">
+                                    queue_music
+                                </span>
                             </button>
                             <button class="music--btn" id="musicPrevBtn">
                                 <span class="material-icons">
@@ -74,6 +72,17 @@
                             </button>
                         </div>
                         <audio src="" id="musicAudio"></audio>
+                    </div>
+
+                    <div
+                        class="music--playlist"
+                        id="musicPlaylist"
+                        data-show="false"
+                    >
+                        <button class="music--btn" id="closeListBtn">
+                            <span class="material-icons"> close </span>
+                        </button>
+                        <div class="music--list"></div>
                     </div>
                 </div>
             </section>
