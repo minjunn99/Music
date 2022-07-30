@@ -5,6 +5,10 @@ class Music {
     #playBtn = HTMLElement;
     #prevBtn = HTMLElement;
     #repeatBtn = HTMLElement;
+    #musicBar = HTMLElement;
+    #musicCurrentTime = HTMLElement;
+    #musicDuration = HTMLElement;
+    #musicProgress = HTMLElement;
     #musicAudio = HTMLElement;
 
     #musics = Array;
@@ -17,6 +21,10 @@ class Music {
         this.#playBtn = document.querySelector("#musicPlayBtn");
         this.#nextBtn = document.querySelector("#musicNextBtn");
         this.#repeatBtn = document.querySelector("#musicRepeatBtn");
+        this.#musicBar = document.querySelector("#musicBar");
+        this.#musicCurrentTime = document.querySelector("#musicCurrentTime");
+        this.#musicDuration = document.querySelector("#musicDuration");
+        this.#musicProgress = document.querySelector("#musicProgress");
         this.#musicAudio = document.querySelector("#musicAudio");
 
         this.#musics = musics || [];
@@ -28,6 +36,9 @@ class Music {
         const playHandle = this.#play.bind(this);
         const nextHandle = this.#next.bind(this);
         const prevHandle = this.#prev.bind(this);
+        const timeUpdateHandle = this.#progress.bind(this);
+        const loadedDataHandle = this.#loadData.bind(this);
+        const barHandle = this.#update.bind(this);
 
         // Play / pause song
         this.#playBtn.onclick = playHandle;
@@ -37,6 +48,27 @@ class Music {
 
         // Prev song
         this.#prevBtn.onclick = prevHandle;
+
+        // Update progress and time
+        this.#musicAudio.ontimeupdate = function (e) {
+            timeUpdateHandle(e.target);
+
+            // Update time
+            loadedDataHandle(e.target);
+        };
+
+        // Main music loaded data
+        this.#musicAudio.onloadeddata = function (e) {
+            loadedDataHandle(e.target);
+        };
+
+        // Update time
+        this.#musicBar.onclick = function (e) {
+            barHandle(e);
+        };
+
+        // Audio on end
+        this.#musicAudio.onended = nextHandle;
     }
 
     #show() {
@@ -107,6 +139,45 @@ class Music {
 
         // Show song
         this.#show();
+
+        // Play song
+        this.#isPlaying = true;
+        this.#musicAudio.play();
+
+        // spin image
+        this.#spinCd();
+    }
+
+    #progress(e) {
+        const { currentTime, duration } = e;
+        let progressWidth = (currentTime / duration) * 100;
+        this.#musicProgress.style.width = `${progressWidth}%`;
+    }
+
+    #loadData(e) {
+        const { currentTime, duration } = e;
+
+        let totalMin = Math.floor(duration / 60);
+        let totalSec = Math.floor(duration % 60);
+        if (totalMin < 10) totalMin = `0${totalMin}`;
+        if (totalSec < 10) totalSec = `0${totalSec}`;
+
+        let currentlMin = Math.floor(currentTime / 60);
+        let currentlSec = Math.floor(currentTime % 60);
+        if (currentlMin < 10) currentlMin = `0${currentlMin}`;
+        if (currentlSec < 10) currentlSec = `0${currentlSec}`;
+
+        this.#musicCurrentTime.innerText = `${currentlMin}:${currentlSec}`;
+        this.#musicDuration.innerText = `${totalMin}:${totalSec}`;
+    }
+
+    #update(e) {
+        let musicBarWidthVal = this.#musicBar.clientWidth;
+        let clickedOffSetX = e.offsetX;
+        let songDuration = this.#musicAudio.duration;
+
+        this.#musicAudio.currentTime =
+            (clickedOffSetX / musicBarWidthVal) * songDuration;
 
         // Play song
         this.#isPlaying = true;

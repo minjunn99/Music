@@ -32,19 +32,22 @@
                         <p class="music--artist text-center"></p>
                         <div class="music--seek">
                             <div class="music--seek__time">
-                                <small>1:04</small>
-                                <small>2:08</small>
+                                <small id="musicCurrentTime"></small>
+                                <small id="musicDuration"></small>
                             </div>
-                            <input
-                                type="range"
-                                value="0"
-                                class="music--seek__bar"
-                            />
+                            <div class="music--progress" id="musicBar">
+                                <input
+                                    type="range"
+                                    value="0"
+                                    class="music--seek__bar"
+                                    id="musicProgress"
+                                />
+                            </div>
                         </div>
                         <div class="music--btns">
                             <button
                                 class="music--btn"
-                                data-repeat="false"
+                                data-shuffle="false"
                                 id="musicMixBtn"
                             >
                                 <span class="material-icons"> shuffle </span>

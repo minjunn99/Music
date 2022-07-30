@@ -156,25 +156,30 @@ small {
 }
 .music--seek__bar {
   display: block;
-  width: 100%;
+  width: 0%;
+  position: relative;
   cursor: pointer;
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
   height: 5px;
   border-radius: var(--border-radius);
-  background: rgba(255, 255, 255, 0.6);
+  background-color: rebeccapurple;
 }
 .music--seek__bar::-webkit-slider-thumb, .music--seek__bar::-moz-range-thumb {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
-  width: 0.75rem;
-  height: 0.75rem;
+  width: 0;
+  height: 0;
   border: 0;
-  background: white;
+}
+.music--progress {
+  width: 100%;
+  height: max-content;
+  border-radius: var(--border-radius);
+  background-color: rgba(255, 255, 255, 0.4);
   cursor: pointer;
-  border-radius: 50%;
 }
 .music--btns {
   display: flex;
@@ -205,17 +210,17 @@ small {
 }
 
 #musicRepeatBtn[data-repeat=true],
-#musicMixBtn[data-repeat=true] {
+#musicMixBtn[data-shuffle=true] {
   opacity: 1;
 }
 
 #musicRepeatBtn[data-repeat=false],
-#musicMixBtn[data-repeat=false] {
+#musicMixBtn[data-shuffle=false] {
   opacity: 0.6;
 }
 
 #musicRepeatBtn:hover[data-repeat=false],
-#musicMixBtn:hover[data-repeat=false] {
+#musicMixBtn:hover[data-shuffle=false] {
   opacity: 1;
 }
 
