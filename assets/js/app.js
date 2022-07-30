@@ -13,6 +13,7 @@ class Music {
 
     #musics = Array;
     #isPlaying = Boolean;
+    #isRepeatSong = Boolean;
     #currentSongIndex = Number;
 
     constructor(musics) {
@@ -29,6 +30,7 @@ class Music {
 
         this.#musics = musics || [];
         this.#isPlaying = false;
+        this.#isRepeatSong = false;
         this.#currentSongIndex = 0;
     }
 
@@ -36,9 +38,11 @@ class Music {
         const playHandle = this.#play.bind(this);
         const nextHandle = this.#next.bind(this);
         const prevHandle = this.#prev.bind(this);
+        const repeatHandle = this.#repeat.bind(this);
+        const barHandle = this.#update.bind(this);
         const timeUpdateHandle = this.#progress.bind(this);
         const loadedDataHandle = this.#loadData.bind(this);
-        const barHandle = this.#update.bind(this);
+        const endedHandle = this.#ended.bind(this);
 
         // Play / pause song
         this.#playBtn.onclick = playHandle;
@@ -48,6 +52,9 @@ class Music {
 
         // Prev song
         this.#prevBtn.onclick = prevHandle;
+
+        // Repeat song
+        this.#repeatBtn.onclick = repeatHandle;
 
         // Update progress and time
         this.#musicAudio.ontimeupdate = function (e) {
@@ -68,7 +75,7 @@ class Music {
         };
 
         // Audio on end
-        this.#musicAudio.onended = nextHandle;
+        this.#musicAudio.onended = endedHandle;
     }
 
     #show() {
@@ -148,6 +155,11 @@ class Music {
         this.#spinCd();
     }
 
+    #repeat() {
+        this.#isRepeatSong = !this.#isRepeatSong;
+        this.#repeatBtn.setAttribute("data-repeat", `${this.#isRepeatSong}`);
+    }
+
     #progress(e) {
         const { currentTime, duration } = e;
         let progressWidth = (currentTime / duration) * 100;
@@ -169,6 +181,16 @@ class Music {
 
         this.#musicCurrentTime.innerText = `${currentlMin}:${currentlSec}`;
         this.#musicDuration.innerText = `${totalMin}:${totalSec}`;
+    }
+
+    #ended() {
+        if (this.#isRepeatSong) {
+            // Play song again
+            this.#isPlaying = true;
+            this.#musicAudio.play();
+        } else {
+            this.#next();
+        }
     }
 
     #update(e) {
